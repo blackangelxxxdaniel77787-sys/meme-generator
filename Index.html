@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AI Meme Generator</title>
+  <!-- Подключаем скрипт Telegram WebApp -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background-color: var(--tg-theme-bg-color, #ffffff);
+      color: var(--tg-theme-text-color, #000000);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--tg-theme-hint-color, #999999);
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--tg-theme-hint-color, #ccc);
+      background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+      color: var(--tg-theme-text-color, #000);
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--tg-theme-button-color, #2481cc);
+      color: var(--tg-theme-button-text-color, #ffffff);
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+    }
+
+    #result-container {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #meme-preview {
+      width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔥 AI Meme Studio</h2>
+
+  <div class="input-group">
+    <label for="topic">О чём должен быть мем?</label>
+    <input type="text" id="topic" placeholder="Например: Дедлайн завтра, а я сплю">
+  </div>
+
+  <div class="input-group">
+    <label for="image">Загрузи картинку (необязательно)</label>
+    <input type="file" id="image" accept="image/*">
+  </div>
+
+  <button class="btn" id="generate-btn" onclick="generateMeme()">✨ Сгенерировать мем</button>
+
+  <div id="result-container">
+    <img id="meme-preview" src="" alt="Сгенерированный мем">
+    <button class="btn" onclick="shareMeme()">📤 Отправить в чат</button>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Разворачиваем окно на весь экран
+
+    async function generateMeme() {
+      const topic = document.getElementById('topic').value;
+      const btn = document.getElementById('generate-btn');
+      const resultContainer = document.getElementById('result-container');
+      const preview = document.getElementById('meme-preview');
+
+      if (!topic) {
+        tg.showAlert("Введите тему для мема!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Генерируем...";
+
+      // Здесь будет запрос к нашему бэкенду
+      // Пока делаем заглушку тестовой картинкой
+      setTimeout(() => {
+        preview.src = "https://placehold.co/600x400/png?text=" + encodeURIComponent(topic);
+        resultContainer.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerText = "✨ Сгенерировать мем";
+      }, 1500);
+    }
+
+    function shareMeme() {
+      // Отправляем данные обратно боту
+      tg.sendData(JSON.stringify({ action: "share_meme" }));
+    }
+  </script>
+</body>
+</html>
