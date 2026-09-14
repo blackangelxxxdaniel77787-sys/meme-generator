@@ -98,38 +98,55 @@
     <button class="btn" onclick="shareMeme()">📤 Отправить в чат</button>
   </div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand(); // Разворачиваем окно на весь экран
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
 
-    async function generateMeme() {
-      const topic = document.getElementById('topic').value;
-      const btn = document.getElementById('generate-btn');
-      const resultContainer = document.getElementById('result-container');
-      const preview = document.getElementById('meme-preview');
+  async function generateMeme() {
+    const topic = document.getElementById('topic').value;
+    const fileInput = document.getElementById('image');
+    const btn = document.getElementById('generate-btn');
+    
+    btn.disabled = true;
+    btn.innerText = "⏳ Генерируем...";
 
-      if (!topic) {
-        tg.showAlert("Введите тему для мема!");
-        return;
+    const formData = new FormData();
+    formData.append('topic', topic);
+    if (fileInput.files[0]) {
+      formData.append('file', fileInput.files[0]);
+    }
+
+    try {
+      const response = await fetch('/generate', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      
+      if (data.image_url) {
+        const img = document.getElementById('meme-preview');
+        img.src = data.image_url;
+        document.getElementById('result-container').style.display = 'block';
       }
-
-      btn.disabled = true;
-      btn.innerText = "Генерируем...";
-
-      // Здесь будет запрос к нашему бэкенду
-      // Пока делаем заглушку тестовой картинкой
-      setTimeout(() => {
-        preview.src = "https://placehold.co/600x400/png?text=" + encodeURIComponent(topic);
-        resultContainer.style.display = 'flex';
-        btn.disabled = false;
-        btn.innerText = "✨ Сгенерировать мем";
-      }, 1500);
+    } catch (e) {
+      alert("Ошибка при генерации мема!");
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "✨ Сгенерировать мем";
     }
+  }
 
-    function shareMeme() {
-      // Отправляем данные обратно боту
-      tg.sendData(JSON.stringify({ action: "share_meme" }));
+  function shareMeme() {
+    const img = document.getElementById('meme-preview');
+    if (img && img.src) {
+      tg.sendData(JSON.stringify({ image_url: img.src }));
+      tg.close();
+    } else {
+      alert("Сначала сгенерируйте мем!");
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
